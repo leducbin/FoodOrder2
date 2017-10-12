@@ -8,6 +8,7 @@ import android.os.Build;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -22,6 +23,9 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.rengwuxian.materialedittext.MaterialEditText;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,7 +39,6 @@ public class SignIn extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
         AnhXa();
-
         btnSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -53,8 +56,18 @@ public class SignIn extends AppCompatActivity {
                             if (response != null) {
                                 if (pDialog.isShowing())
                                     pDialog.dismiss();
-                                Intent intent = new Intent(SignIn.this,Home.class);
+                                try {
+                                    JSONObject jsonObject = new JSONObject(response);
+                                    JSONObject data =jsonObject.getJSONObject("data");
+                                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                                    editor.putString("phone",data.getString("phone"));
+                                    editor.putString("api_token",data.getString("api_token"));
+                                    editor.commit();
+                                    Intent intent = new Intent(SignIn.this,Home.class);
+                                    SignIn.this.startActivity(intent);
+                                } catch (JSONException e) {
 
+                                }
                             }
                         }
                     },
@@ -92,6 +105,7 @@ public class SignIn extends AppCompatActivity {
                     requestQueue.add(stringRequest);
                 }
             }
+
         });
 
 
